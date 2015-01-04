@@ -40,6 +40,8 @@ import sys
 from filechunkio import FileChunkIO
 from hurry.filesize import size
 import json
+from operator import itemgetter
+import datetime
 
 PIPE = subprocess.PIPE
 
@@ -69,9 +71,45 @@ def create_master_snapshot(src_dir, dest_file):
     return snapshot_name
 
 
-def upload_s3(bucket, source_path):
+def purge_s3(bucket, name):
     c = boto.connect_s3()
     b = c.get_bucket(bucket)
+
+    snapshots = []
+    for key in b:
+        if name in str(key):
+            #print str(key)
+
+            first = str(key).index(name) + len(name)
+            last = str(key).index('.zip')
+
+            #print first
+            #print last
+
+            snapshots.append({'timestamp': str(key)[first:last], 'file': str(key)[str(key).index(',')+1:len(str(key))-1]})
+            #print str(key)[first:last]
+
+    #print snapshots
+    print ""
+    newlist = sorted(snapshots, key=itemgetter('timestamp'), reverse=False)
+
+    #print newlist
+
+    for time in snapshots:
+        print datetime.datetime.fromtimestamp(int(time['timestamp'])).strftime('%Y-%m-%d %H:%M:%S')
+
+
+def upload_s3(bucket, source_path, backup_name):
+    c = boto.connect_s3()
+    b = c.get_bucket(bucket)
+
+    total_bytes = 0
+    for key in b:
+        total_bytes += key.size
+
+    print size(total_bytes)
+
+    #if total_bytes >= 4900000000:
 
     if b.get_all_multipart_uploads():
         print "This bucket contains lost files..."
@@ -105,6 +143,7 @@ with open('config.json') as data_file:
 
 for item in config:
     os.chdir(item['origin_dir'])
-    compress_children(item['origin_dir'])
-    current_snapshot = create_master_snapshot('../' + item['origin_dir'] + '-snapshots', item['backup_name'])
-    upload_s3(item['s3_bucket'], '../' + current_snapshot + '.zip')
+    #compress_children(item['origin_dir'])
+    #current_snapshot = create_master_snapshot('../' + item['origin_dir'] + '-snapshots', item['backup_name'])
+    #upload_s3(item['s3_bucket'], '../' + current_snapshot + '.zip', item['backup_name'])
+    purge_s3(item['s3_bucket'], item['backup_name'])

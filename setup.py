@@ -87,7 +87,6 @@ try:
 except Exception:
     print 'Error dumping json data'
 
-
 configFile.close()
 
 # debug
