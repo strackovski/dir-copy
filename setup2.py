@@ -96,3 +96,6 @@ while query_yes_no("Add another source?", "no"):
     configs.append(prompt_user())
 
 print configs
+
+configFile = open('config2.json', 'w')
+json.dump(configs, configFile, ensure_ascii=True)
