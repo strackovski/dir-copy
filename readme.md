@@ -15,14 +15,14 @@ It is recommended to use the setup.py tool as it generates most of the parameter
 ### Support and requirements
 
 This software is tested on UNIX systems, specifically on several Linux distributions and OS X. It relies on the following components:
+
 * Python 2.6+
 * [zip] - zip tool for linux/osx systems
 * [boto] - Python interface to Amazon Web Services
 * [filechunkio] - multipart upload library for Python
 * [aws-cli] - cli tools for interfacing with Amazon AWS
 
-To upload backup snapshots to Amazon S3 buckets, you will need to install the aws-cli tools and configure the connection and authentication parameters in aws credentials file.
-
+To upload backup snapshots to Amazon S3 buckets, you will need to [install and configure the aws-cli tools].
 
 ### Version
 0.0.9
@@ -31,3 +31,4 @@ To upload backup snapshots to Amazon S3 buckets, you will need to install the aw
 [boto]:https://github.com/boto/boto
 [filechunkio]:https://pypi.python.org/pypi/filechunkio
 [aws-cli]:http://aws.amazon.com/cli/
+[install and configure the aws-cli tools]:http://docs.aws.amazon.com/cli/latest/userguide/installing.html
