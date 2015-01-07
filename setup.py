@@ -125,7 +125,6 @@ configs.append(config)
 while __query_yes_no("Add another backup configuration?", "no"):
     configs.append(configure())
 
-print configs
 configFile = open('backup.json', 'w')
 json.dump(configs, configFile, ensure_ascii=True)
 print "Configuration saved to backup.json"
