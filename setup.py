@@ -46,7 +46,7 @@ def configure():
     print "the required information to get going!\n"
 
     source = raw_input("Absolute path to backup source directory: ")
-    while not os.path.isdir(source):
+    while not os.path.isdir(source) or not os.path.isabs(source):
         print "Invalid source: directory " + source + " not found."
         source = raw_input("Absolute path to backup source directory: ")
     source_name = os.path.basename(os.path.normpath(source))
@@ -57,17 +57,29 @@ def configure():
     config['source'] = source
     config['source_name'] = source_name
 
-    local = raw_input('Absolute path to local destination directory (will be created if non-existent): ')
-    if len(local) > 0:
+    if __query_yes_no('Would you like to add local backup destination(s)?'):
+        local = raw_input('Absolute path to local destination directory (will be created if non-existent): ')
+        while not len(local) > 0 or not os.path.isabs(local):
+            local = raw_input('Enter at lease one local destination directory (will be created if non-existent): ')
         local_destinations.append(local)
-        while __query_yes_no("Add another local destination?", "no"):
-            local_destinations.append(raw_input("Path: "))
 
-    s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ')
-    if len(s3_bucket) > 0:
+        while __query_yes_no("Add another local destination?", "no"):
+            local = raw_input('Path to destination (will be created if non-existent): ')
+            while not len(local) > 0 or not os.path.isabs(local):
+                local = raw_input('Directory path must be absolute (will be created if non-existent): ')
+            local_destinations.append(local)
+
+    if __query_yes_no('Would you like to add S3 bucket(s) as remote destination(s)?'):
+        s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ')
+        while not len(s3_bucket) > 0:
+            s3_bucket = raw_input('S3 Bucket name can\'t be empty: ')
         s3_buckets.append(s3_bucket)
+
         while __query_yes_no("Add another bucket?", "no"):
-            s3_buckets.append(raw_input("Bucket name: "))
+            s3_bucket = raw_input("Bucket name: ")
+            while not len(s3_bucket) > 0:
+                s3_bucket = raw_input('S3 Bucket name can\'t be empty: ')
+            s3_buckets.append(s3_bucket)
 
     destinations['local'] = local_destinations
     destinations['s3'] = s3_buckets
