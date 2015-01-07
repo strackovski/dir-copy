@@ -23,10 +23,9 @@
 #
 
 """
-  backup setup tool
-  ~~~~~~~~~~~~~~~~~~
-    Simple backup tool
-    Author: Vladimir Strackovski <vlado@nv3.org>
+Backup configuration tool
+~~~~~~~~~~~~~~~~~~
+Author: Vladimir Strackovski <vlado@nv3.org>
 """
 
 __author__ = 'vstrackovski'
@@ -36,17 +35,55 @@ import os
 import sys
 
 
-def prompt_user():
-    origin_name = raw_input('A name for this backup: ')
-    origin_dir = raw_input('Absolute path to directory to backup: ')
-    backup_name = raw_input('Archive file name: ')
-    s3_bucket = raw_input('Name of the S3 bucket for remote backup: ')
-    new_cfg_dict = {'origin_name': origin_name, 'origin_dir': origin_dir, 'backup_name': backup_name, 's3_bucket': s3_bucket}
+def configure():
+    """
+    Prompt user for backup configuration parameters
+    """
 
-    return new_cfg_dict
+    print "Welcome to backup setup!\n"
+    print "You can configure this tool to backup multiple sources"
+    print "to multiple local locations and S3 buckets. Please provide"
+    print "the required information to get going!\n"
+
+    source = raw_input("Absolute path to backup source directory: ")
+    while not os.path.isdir(source):
+        print "Invalid source: directory " + source + " not found."
+        source = raw_input("Absolute path to backup source directory: ")
+    source_name = os.path.basename(os.path.normpath(source))
+    config = {}
+    destinations = {}
+    local_destinations = []
+    s3_buckets = []
+    config['source'] = source
+    config['source_name'] = source_name
+
+    local = raw_input('Absolute path to local destination directory (will be created if non-existent): ')
+    if len(local) > 0:
+        local_destinations.append(local)
+        while __query_yes_no("Add another local destination?", "no"):
+            local_destinations.append(raw_input("Path: "))
+
+    s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ')
+    if len(s3_bucket) > 0:
+        s3_buckets.append(s3_bucket)
+        while __query_yes_no("Add another bucket?", "no"):
+            s3_buckets.append(raw_input("Bucket name: "))
+
+    destinations['local'] = local_destinations
+    destinations['s3'] = s3_buckets
+    config['destinations'] = destinations
+
+    return config
 
 
-def query_yes_no(question, default="yes"):
+def __query_yes_no(question, default="yes"):
+    """
+    Simple yes/no question helper
+
+    Attributes:
+        question    The question to ask the user
+        default     The default answer (yes/no)
+    """
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
     if default is None:
@@ -69,28 +106,14 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 
-cfgList = []
-if os.path.isfile('config.json'):
-    try:
-        cfgList = json.loads(open('config.json').read())
-    except Exception:
-        pass
 
-configFile = open('config.json', 'w')
-cfgList.append(prompt_user())
+configs = []
+config = configure()
+configs.append(config)
+while __query_yes_no("Add another backup configuration?", "no"):
+    configs.append(configure())
 
-if query_yes_no('Add more origins?'):
-    cfgList.append(prompt_user())
-
-try:
-    json.dump(cfgList, configFile, ensure_ascii=True)
-except Exception:
-    print 'Error dumping json data'
-
-configFile.close()
-
-# debug
-with open('config.json') as data_file:
-    config = json.load(data_file)
-
-print config
+print configs
+configFile = open('backup.json', 'w')
+json.dump(configs, configFile, ensure_ascii=True)
+print "Configuration saved to backup.json"
