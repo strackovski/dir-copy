@@ -1,0 +1,19 @@
+[
+    {
+        "source": "/absolute/path/to/source",
+        "source_name": "source",
+        "destinations":
+        {
+            "s3":
+            [
+                "s3_bucket_name",
+                "s3_bucket_name_2"
+            ],
+            "local":
+            [
+                "/local/backup/destination"
+                "/local/backup/destination2"
+            ]
+        }
+    }
+]

@@ -84,7 +84,7 @@ def __query_yes_no(question, default="yes"):
         question    The question to ask the user
         default     The default answer (yes/no)
     """
-    valid = {"yes": True, "y": True, "ye": True,
+    valid = {"yes": True, "y": True,
              "no": False, "n": False}
     if default is None:
         prompt = " [y/n] "

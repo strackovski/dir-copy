@@ -189,6 +189,9 @@ class Snapshot:
                 self.log_events('info', 'Error transfering master archive to destination ' + dest)
                 raise Exception('Error transfering master archive to destination ' + dest)
 
+            print "Transfer to "+dest+" completed successfully!"
+            self.log_events('info', 'Transfer to '+dest+' completed successfully!')
+
     def __transfer_snapshot_s3(self):
         """Transfer master archive to remote backup destinations"""
         c = boto.connect_s3()
@@ -221,14 +224,13 @@ class Snapshot:
             print 'Uploading '+size(source_size)+' to bucket ' + bucket
 
             for i in range(chunk_count + 1):
-                sys.stdout.flush()
                 offset = chunk_size * i
                 bytes = min(chunk_size, source_size - offset)
                 with FileChunkIO(self.master_file, 'r', offset=offset, bytes=bytes) as fp:
                     mp.upload_part_from_file(fp, part_num=i + 1)
 
             mp.complete_upload()
-            print 'Upload to bucket '+bucket+' complete.'
+            print 'Transfer to bucket '+bucket+' completed successfully!'
             self.log_events('info', 'Transfer to bucket '+bucket+' completed successfully!')
 
     def log_events(self, level, message):
