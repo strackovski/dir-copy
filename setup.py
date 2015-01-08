@@ -33,8 +33,6 @@ __author__ = 'vstrackovski'
 import json
 import os
 import sys
-import boto
-from boto.exception import S3CreateError
 from crontab import CronTab
 
 
@@ -82,14 +80,6 @@ def configure():
         s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ').lower()
         while not len(s3_bucket) > 0:
             s3_bucket = raw_input('S3 Bucket name can\'t be empty: ').lower()
-
-        bucket_created = False
-        c = boto.connect_s3()
-        while not bucket_created == True:
-            try:
-                b = c.create_bucket(s3_bucket)
-            except S3CreateError, e:
-    
         s3_buckets.append(s3_bucket)
 
     destinations['local'] = local_destinations
