@@ -180,14 +180,14 @@ class Snapshot:
         for dest in self.destinations['local']:
             if not os.path.isdir(dest):
                 os.mkdir(dest)
-            print "Transfering master archive to destination " + dest + "..."
-            self.log_events('info', 'Transfering master archive to destination ' + dest)
+            print "Transferring master archive to destination " + dest + "..."
+            self.log_events('info', 'Transferring master archive to destination ' + dest)
             if self.master_file is not None:
                 shutil.copy2(self.master_file, dest)
 
             if not os.path.isfile(dest + '/' + self.source_name + '-' + self.time + '-master.zip'):
-                self.log_events('info', 'Error transfering master archive to destination ' + dest)
-                raise Exception('Error transfering master archive to destination ' + dest)
+                self.log_events('info', 'Error transferring master archive to destination ' + dest)
+                raise Exception('Error transferring master archive to destination ' + dest)
 
             print "Transfer to "+dest+" completed successfully!"
             self.log_events('info', 'Transfer to '+dest+' completed successfully!')

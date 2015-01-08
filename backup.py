@@ -28,10 +28,17 @@ Simple backup tool
 Author: Vladimir Strackovski <vlado@nv3.org>
 """
 
+import os
+import sys
 import json
 from Snapshot import Snapshot
 
 __author__ = 'vstrackovski'
+
+if not os.path.isfile('backup.json'):
+    message = "Configuration is expected to be stored in backup.json, but no such file was found!\n"
+    message += "Please run the setup tool (setup.py) to configure your backup instance."
+    sys.exit('ERROR: ' + message)
 
 with open('backup.json') as data_file:
     configs = json.load(data_file)
