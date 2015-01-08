@@ -97,6 +97,30 @@ class Snapshot:
         self.__transfer_snapshot_s3()
         self.__cleanup()
 
+    def __purge_s3(self, bucket, keep_older=1):
+        """
+        Remove older archives from the S3 bucket
+
+            bucket      S3 bucket name to purge
+            keep_older  Amount of previous archives to keep
+        """
+        c = boto.connect_s3()
+        b = c.get_bucket(bucket)
+        rs = b.list()
+
+        older_archives = []
+        for item in rs:
+            if self.source_name in item.name:
+                sitem = item.name.split('-')
+                mtime = sitem[len(sitem)-2]
+                if mtime < self.time:
+                    older_archives.append(item.name)
+
+        # extract 1 to var
+        if len(older_archives) > keep_older:
+            for o in older_archives[:-keep_older]:
+                b.delete_key(o)
+
     def __cleanup(self):
         """Remove temporary files and directories"""
         os.remove(self.master_file)
@@ -203,6 +227,7 @@ class Snapshot:
         for bucket in self.destinations['s3']:
             try:
                 b = c.get_bucket(bucket)
+                self.__purge_s3(bucket)
                 self.log_events('info', 'Found bucket ' + bucket)
                 sys.stdout.write('Found bucket ' + bucket + ', ')
                 total_bytes = 0

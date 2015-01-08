@@ -75,12 +75,6 @@ def configure():
             s3_bucket = raw_input('S3 Bucket name can\'t be empty: ').lower()
         s3_buckets.append(s3_bucket)
 
-        while __query_yes_no("Add another bucket?", "no"):
-            s3_bucket = raw_input("Bucket name: ").lower()
-            while not len(s3_bucket) > 0:
-                s3_bucket = raw_input('S3 Bucket name can\'t be empty: ').lower()
-            s3_buckets.append(s3_bucket)
-
     destinations['local'] = local_destinations
     destinations['s3'] = s3_buckets
     config['destinations'] = destinations
