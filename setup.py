@@ -33,6 +33,9 @@ __author__ = 'vstrackovski'
 import json
 import os
 import sys
+import boto
+from boto.exception import S3CreateError
+from crontab import CronTab
 
 
 def configure():
@@ -57,6 +60,12 @@ def configure():
     config['source'] = source
     config['source_name'] = source_name
 
+    if __query_yes_no('Would you like to schedule this job?'):
+        cron = CronTab()
+        job = cron.new(command='python ' + os.path.dirname(os.path.realpath(__file__)) + '/backup.py')
+        job.setall('0 3 * * *')
+        cron.write()
+
     if __query_yes_no('Would you like to add local backup destination(s)?'):
         local = raw_input('Absolute path to local destination directory (will be created if non-existent): ')
         while not len(local) > 0 or not os.path.isabs(local):
@@ -66,13 +75,21 @@ def configure():
         while __query_yes_no("Add another local destination?", "no"):
             local = raw_input('Path to destination (will be created if non-existent): ')
             while not len(local) > 0 or not os.path.isabs(local):
-                local = raw_input('Directory path must be absolute (will be created if non-existent): ')
+                local = raw_input('Directory path must be absolute: ')
             local_destinations.append(local)
 
-    if __query_yes_no('Would you like to add S3 bucket(s) as remote destination(s)?'):
+    if __query_yes_no('Would you like to add an S3 bucket as remote destination?'):
         s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ').lower()
         while not len(s3_bucket) > 0:
             s3_bucket = raw_input('S3 Bucket name can\'t be empty: ').lower()
+
+        bucket_created = False
+        c = boto.connect_s3()
+        while not bucket_created == True:
+            try:
+                b = c.create_bucket(s3_bucket)
+            except S3CreateError, e:
+    
         s3_buckets.append(s3_bucket)
 
     destinations['local'] = local_destinations

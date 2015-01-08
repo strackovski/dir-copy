@@ -35,6 +35,7 @@ import sys
 from filechunkio import FileChunkIO
 from hurry.filesize import size
 from boto.exception import S3ResponseError
+from boto.exception import S3CreateError
 
 
 class Snapshot:
@@ -238,7 +239,12 @@ class Snapshot:
                 if e.status == 404:
                     self.log_events('error', 'Bucket ' + bucket + ' not found, creating now')
                     print 'Bucket ' + bucket + ' not found, creating now...'
-                    b = c.create_bucket(bucket)
+                    try:
+                        b = c.create_bucket(bucket)
+                    except S3CreateError, e:
+                        self.log_events('fatal', "Failed creating bucket with name " + bucket + ", aborting.")
+                        self.log_events('fatal', e.message)
+                        print "Failed creating bucket with name " + bucket + ", aborting."
 
             if b.get_all_multipart_uploads():
                 print "This bucket contains lost files, you should remove them."
