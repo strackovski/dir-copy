@@ -70,15 +70,15 @@ def configure():
             local_destinations.append(local)
 
     if __query_yes_no('Would you like to add S3 bucket(s) as remote destination(s)?'):
-        s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ')
+        s3_bucket = raw_input('S3 Bucket name (will be created if non-existent): ').lower()
         while not len(s3_bucket) > 0:
-            s3_bucket = raw_input('S3 Bucket name can\'t be empty: ')
+            s3_bucket = raw_input('S3 Bucket name can\'t be empty: ').lower()
         s3_buckets.append(s3_bucket)
 
         while __query_yes_no("Add another bucket?", "no"):
-            s3_bucket = raw_input("Bucket name: ")
+            s3_bucket = raw_input("Bucket name: ").lower()
             while not len(s3_bucket) > 0:
-                s3_bucket = raw_input('S3 Bucket name can\'t be empty: ')
+                s3_bucket = raw_input('S3 Bucket name can\'t be empty: ').lower()
             s3_buckets.append(s3_bucket)
 
     destinations['local'] = local_destinations
