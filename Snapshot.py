@@ -179,7 +179,7 @@ class Snapshot:
     def __transfer_snapshot_local(self):
         """Transfer master archive to local backup destinations"""
         for dest in self.destinations['local']:
-            if not os.path.isdir(dest):
+            if not os.path.exists(dest):
                 try:
                     os.makedirs(dest)
                 except OSError as exception:
