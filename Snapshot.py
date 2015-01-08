@@ -179,7 +179,7 @@ class Snapshot:
         """Transfer master archive to local backup destinations"""
         for dest in self.destinations['local']:
             if not os.path.isdir(dest):
-                os.mkdir(dest)
+                os.makedirs(dest)
             print "Transferring master archive to destination " + dest + "..."
             self.log_events('info', 'Transferring master archive to destination ' + dest)
             if self.master_file is not None:
