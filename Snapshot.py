@@ -25,6 +25,7 @@
 __author__ = 'vstrackovski'
 
 import os
+import errno
 import subprocess
 import shutil
 import time
@@ -179,7 +180,11 @@ class Snapshot:
         """Transfer master archive to local backup destinations"""
         for dest in self.destinations['local']:
             if not os.path.isdir(dest):
-                os.makedirs(dest)
+                try:
+                    os.makedirs(dest)
+                except OSError as exception:
+                    if exception.errno != errno.EEXIST:
+                        raise
             print "Transferring master archive to destination " + dest + "..."
             self.log_events('info', 'Transferring master archive to destination ' + dest)
             if self.master_file is not None:
