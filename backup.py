@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (c) 2015 Vladimir Strackovski vlado@nv3.org
 #
@@ -35,12 +34,14 @@ from Snapshot import Snapshot
 
 __author__ = 'vstrackovski'
 
-if not os.path.isfile('backup.json'):
-    message = "Configuration is expected to be stored in backup.json, but no such file was found!\n"
+cfgFile = os.path.dirname(os.path.realpath(__file__)) + '/backup.json'
+
+if not os.path.isfile(cfgFile):
+    message = "Configuration is expected to be stored in " + cfgFile + ", but no such file was found!\n"
     message += "Please run the setup tool (setup.py) to configure your backup instance."
     sys.exit('ERROR: ' + message)
 
-with open('backup.json') as data_file:
+with open(cfgFile) as data_file:
     configs = json.load(data_file)
 
 for config in configs:

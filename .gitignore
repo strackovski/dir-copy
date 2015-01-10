@@ -1,3 +1,4 @@
+nvbenv/
 .idea/
 backup.json
 *.pyc

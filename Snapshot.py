@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (c) 2015 Vladimir Strackovski vlado@nv3.org
 #
@@ -117,7 +116,6 @@ class Snapshot:
                 if mtime < self.time:
                     older_archives.append(item.name)
 
-        # extract 1 to var
         if len(older_archives) > keep_older:
             for o in older_archives[:-keep_older]:
                 b.delete_key(o)

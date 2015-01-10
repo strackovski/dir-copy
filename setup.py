@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (c) 2015 Vladimir Strackovski vlado@nv3.org
 #
@@ -58,11 +57,14 @@ def configure():
     config['source'] = source
     config['source_name'] = source_name
 
-    if __query_yes_no('Would you like to schedule this job?'):
+    if __query_yes_no('Would you like to schedule this job using crontab?'):
         cron = CronTab()
-        job = cron.new(command='python ' + os.path.dirname(os.path.realpath(__file__)) + '/backup.py')
+
+        # get python env loc ...
+        virt_py = os.path.dirname(os.path.realpath(__file__)) + '/nvbenv/bin/python '
+        job = cron.new(command=virt_py + os.path.dirname(os.path.realpath(__file__)) + '/backup.py')
         job.setall('0 3 * * *')
-        cron.write()
+        #cron.write()
 
     if __query_yes_no('Would you like to add local backup destination(s)?'):
         local = raw_input('Absolute path to local destination directory (will be created if non-existent): ')
