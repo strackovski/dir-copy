@@ -34,6 +34,12 @@ import os
 import sys
 from crontab import CronTab
 
+def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def configure():
     """
@@ -63,6 +69,33 @@ def configure():
         # get python env loc ...
         virt_py = os.path.dirname(os.path.realpath(__file__)) + '/nvbenv/bin/python '
         job = cron.new(command=virt_py + os.path.dirname(os.path.realpath(__file__)) + '/backup.py')
+
+        if __query_yes_no('Would you like this task to repeat?'):
+            print 'Please select how to repeat this task:'
+            print '[1] Monthly'
+            print '[2] Weekly'
+            print '[3] Daily'
+
+            repeat_mode = raw_input('Enter repeat mode [1-3]: ')
+            while not is_int(repeat_mode):
+                repeat_mode = raw_input('Repeat mode must be an integer: ')
+
+            while int(repeat_mode) < 1 or int(repeat_mode) > 3:
+                repeat_mode = raw_input('Repeat mode must be between 1 and 3: ')
+
+
+
+            if int(repeat_mode) == 1:
+                dom = raw_input('Enter day of month [1-31]: ')
+                while not is_int(dom):
+                    dom = raw_input('Day of month must be an integer: ')
+
+                while int(dom) < 1 or int(dom) > 31:
+                    dom = raw_input('Day of month must be between 1 and 3: ')
+
+                print dom
+
+
         job.setall('0 3 * * *')
         #cron.write()
 
