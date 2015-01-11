@@ -34,6 +34,7 @@ import os
 import sys
 from crontab import CronTab
 
+
 def is_int(s):
     try:
         int(s)
@@ -41,11 +42,35 @@ def is_int(s):
     except ValueError:
         return False
 
+
+def ask(question, options):
+    """
+    Simple select-option question helper
+
+        question    The question to ask
+        options     List of options to present as choices
+    """
+    if not isinstance(options, list):
+        raise Exception('Invalid parameter options, expected dict')
+
+    if len(options) < 1:
+        raise Exception('Empty options list?')
+
+    print question.capitalize()
+    for v in options:
+        print '[' + str(options.index(v)) + ']: ' + str(v).capitalize()
+
+    uinput = raw_input('Select an option from the list above: ')
+    while not is_int(uinput) or int(uinput) > len(options)-1:
+        uinput = raw_input('Input should be an integer between 0 and ' + str(len(options)-1) + ':')
+
+    return int(uinput)
+
+
 def configure():
     """
     Prompt user for backup configuration parameters
     """
-
     print "Welcome to backup setup!\n"
     print "You can configure this tool to backup multiple sources"
     print "to multiple local locations and S3 buckets. Please provide"
@@ -65,39 +90,57 @@ def configure():
 
     if __query_yes_no('Would you like to schedule this job using crontab?'):
         cron = CronTab()
-
-        # get python env loc ...
         virt_py = os.path.dirname(os.path.realpath(__file__)) + '/nvbenv/bin/python '
         job = cron.new(command=virt_py + os.path.dirname(os.path.realpath(__file__)) + '/backup.py')
 
+        day_of_month = '*'
+        day_of_week = '*'
+        month = '*'
+        cron_strf = '{} {} {} {} {}'
+
         if __query_yes_no('Would you like this task to repeat?'):
-            print 'Please select how to repeat this task:'
-            print '[1] Monthly'
-            print '[2] Weekly'
-            print '[3] Daily'
+            # Define repetition interval
+            interval = ask('how would you like to repeat this backup task?', ['daily', 'weekly', 'monthly'])
+            if interval == 0:
+                pass
+            elif interval == 1:
+                dow = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                day_of_week = ask('enter day of week', dow)
+                print 'Chosen: ' + dow[day_of_week].capitalize()
+            elif interval == 2:
+                day_of_month = raw_input('Enter day of month [1-31]: ')
+                while not is_int(day_of_month) or (int(day_of_month) > 31 or int(day_of_month) < 1):
+                    day_of_month = raw_input('Enter day_of_month correctly! [1-31]: ')
+        else:
+            # Define the exact time of backup execution
+            month = raw_input('Enter month of year [1-12]: ')
+            while not is_int(month) or (int(month) > 12 or int(month) < 1):
+                month = raw_input('Enter month_of_year correctly! [1-12]: ')
 
-            repeat_mode = raw_input('Enter repeat mode [1-3]: ')
-            while not is_int(repeat_mode):
-                repeat_mode = raw_input('Repeat mode must be an integer: ')
+            day_of_month = raw_input('Enter day of month [1-31]: ')
+            while not is_int(day_of_month) or (int(day_of_month) > 31 or int(day_of_month) < 1):
+                day_of_month = raw_input('Enter day_of_month correctly! [1-31]: ')
 
-            while int(repeat_mode) < 1 or int(repeat_mode) > 3:
-                repeat_mode = raw_input('Repeat mode must be between 1 and 3: ')
+        # Define hours and minutes (common to both scheduled and not)
+        hours = raw_input('Enter hours [0-23]: ')
+        while not is_int(hours) or (int(hours) > 23 or int(hours) < 0):
+            hours = raw_input('Enter hours correctly! [0-23]: ')
 
+        minutes = raw_input('Enter minutes [0-59]: ')
+        while not is_int(minutes) or (int(minutes) > 59 or int(minutes) < 0):
+            minutes = raw_input('Enter minutes correctly! [0-59]: ')
 
-
-            if int(repeat_mode) == 1:
-                dom = raw_input('Enter day of month [1-31]: ')
-                while not is_int(dom):
-                    dom = raw_input('Day of month must be an integer: ')
-
-                while int(dom) < 1 or int(dom) > 31:
-                    dom = raw_input('Day of month must be between 1 and 3: ')
-
-                print dom
-
-
-        job.setall('0 3 * * *')
-        #cron.write()
+        # Construct a cron timing string
+        cron_string = cron_strf.format(
+            str(minutes),
+            str(hours),
+            str(day_of_month),
+            str(month),
+            str(day_of_week)
+        )
+        config['cron'] = cron_string
+        job.setall(cron_string)
+        cron.write()
 
     if __query_yes_no('Would you like to add local backup destination(s)?'):
         local = raw_input('Absolute path to local destination directory (will be created if non-existent): ')
