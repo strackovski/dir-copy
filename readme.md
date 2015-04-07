@@ -1,4 +1,4 @@
-# dirSnap
+# dir-copy
 
 A simple tool that creates snapshots of folders and transfers them to local and remote (S3) locations.
 
