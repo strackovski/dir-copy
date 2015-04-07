@@ -1,6 +1,6 @@
-# multi-backup (beta)
+# dirSnap
 
-Backup is a simple backup tool that creates snapshots of folders and transfers them to local and remote (S3) locations.
+A simple tool that creates snapshots of folders and transfers them to local and remote (S3) locations.
 
 It compresses all contents (first-level children) of the source directory and compresses all resulting archives to the master archive for easy transfer to preconfigured destinations. Only locally accessible (mountable) paths and Amazon S3 Buckets are supported as destinations.
 
@@ -11,6 +11,10 @@ To configure your copy just run setup.py or create a "backup.json" configuration
   - source_name - name of source directory
 
 It is recommended to use the setup.py tool as it generates most of the parameters on the fly.
+
+### Todo
+
+Data retrieval and restore procedure
 
 ### Support and requirements
 
